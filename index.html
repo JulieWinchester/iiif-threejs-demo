@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Title</title>
+    <link href="src/styles.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="canvas-container">
+      <div id="canvas"></div>
+    </div>
+    <div id="form">
+      <select name="manifest" id="manifest-select">
+        <optgroup label="1. Basic Model in Scene">
+          <option value="https://raw.githubusercontent.com/IIIF/3d/main/manifests/1_basic_model_in_scene/model_origin.json">
+            Single Model
+          </option>
+          <option value="https://raw.githubusercontent.com/IIIF/3d/main/manifests/1_basic_model_in_scene/model_origin_bgcolor.json">
+            Single Model with background color
+          </option>
+        </optgroup>
+      </select>
+      <div class="form-group">
+        <input type="text" id="manifest-url" name="manifest-url" value="https://raw.githubusercontent.com/IIIF/3d/main/manifests/1_basic_model_in_scene/model_origin.json"></input>
+        <button id="load-manifest-from-url">Load Manifest From URL</button>
+      </div>
+      <textarea id="manifest-text" name="manifest-text" rows="10"></textarea>
+      <button id="load-manifest-from-text">Load Manifest From Text</button>
+    </div>
+    <script src="src/main.js"></script>
+    <script src="src/listeners.js"></script>
+  </body>
+</html>
