@@ -1,22 +1,22 @@
 {
-  "name": "vanilla-typescript",
+  "name": "iiif-threejs-demo",
   "version": "1.0.0",
-  "description": "JavaScript and TypeScript example starter project",
-  "main": "index.html",
+  "description": "Demo experiment of IIIF 3D content using Three.js",
+  "source": "index.html",
+  "type": "module",
   "scripts": {
-    "start": "parcel index.html",
-    "build": "parcel build index.html"
+    "start": "parcel",
+    "build": "parcel build"
   },
   "dependencies": {
-    "parcel-bundler": "1.6.1",
-    "three": "^0.161.0",
-    "manifesto.js": "JulieWinchester/manifesto#3dtsg-dev-dist"
+    "manifesto.js": "JulieWinchester/manifesto#3dtsg-dev-dist",
+    "three": "^0.161.0"
   },
+  "keywords": [
+    "typescript",
+    "javascript"
+  ],
   "devDependencies": {
-    "typescript": "4.4.4"
-  },
-  "resolutions": {
-    "@babel/preset-env": "7.13.8"
-  },
-  "keywords": ["typescript", "javascript"]
+    "parcel": "^2.12.0"
+  }
 }
