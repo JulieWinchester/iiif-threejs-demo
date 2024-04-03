@@ -4,14 +4,15 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 import { IIIFManifest } from "./iiif";
 
+const loader = new GLTFLoader();
 let renderer;
 let scene;
 let camera;
 let iiifManifest;
 
 // window.addEventListener("resize", onWindowResize, false);
-
-const firstManifestUrl = document.querySelector("input#manifest-url").value;
+const firstManifestUrl = document.querySelector("select#manifest-select").value;
+document.querySelector("input#manifest-url").value = firstManifestUrl;
 loadScene(firstManifestUrl);
 
 export async function loadScene(manifestUrlOrJson) {
@@ -23,7 +24,7 @@ export async function loadScene(manifestUrlOrJson) {
     document.querySelector("textarea#manifest-text").value = JSON.stringify(
       iiifManifest.manifest.__jsonld,
       undefined,
-      4
+      4,
     );
   }
 }
@@ -41,7 +42,7 @@ function init() {
     35,
     canvas.clientWidth / canvas.clientHeight,
     0.01,
-    100
+    100,
   );
   scene.add(camera);
 
@@ -86,36 +87,114 @@ async function loadIIIFManifest(manifestUrlOrJson) {
       "blue" in bgColor
     ) {
       scene.background = new THREE.Color(
-        `rgb(${bgColor.red}, ${bgColor.green}, ${bgColor.blue})`
+        `rgb(${bgColor.red}, ${bgColor.green}, ${bgColor.blue})`,
       );
     }
 
     // Load individual model annotations
-    iiifManifest
-      .annotationsFromScene(manifestScene)
-      .filter((anno) => {
-        const body = anno.getBody3D();
-        return (
-          anno.getMotivation()?.[0] === "painting" &&
-          body?.getType() === "model" &&
-          body?.id &&
-          anno.getTarget()
-        );
-      })
-      .forEach((modelAnnotation) => {
-        loadModel(modelAnnotation);
-      });
+    const annos = iiifManifest.annotationsFromScene(manifestScene);
+
+    const filteredAnnos = annos.filter((anno) => {
+      const body = anno.getBody3D();
+      return (
+        anno.getMotivation()?.[0] === "painting" &&
+        (body.isSpecificResource || body?.getType() === "model")
+      );
+    });
+
+    filteredAnnos.forEach((modelAnnotation) => {
+      loadModel(modelAnnotation);
+    });
   }
 }
 
 function loadModel(modelAnnotation) {
-  const modelUrl = modelAnnotation.getBody3D().id;
+  let modelUrl;
+  if (modelAnnotation.getBody3D().isSpecificResource) {
+    modelUrl = modelAnnotation.getBody3D().getSource()?.id;
+  } else {
+    modelUrl = modelAnnotation.getBody3D().id;
+  }
   const modelTarget = modelAnnotation.getTarget();
+
   if (modelUrl && modelTarget) {
-    const loader = new GLTFLoader();
     loader.load(modelUrl, (gltf) => {
-      scene.add(gltf.scene);
+      let model = gltf.scene;
+
+      // Transform model
+      console.log(modelAnnotation.getBody3D());
+      if (modelAnnotation.getBody3D().isSpecificResource) {
+        const transforms = modelAnnotation.getBody3D().getTransform() || [];
+        console.log(transforms);
+        transforms.forEach((transform) => {
+          if (transform.isTransform) {
+            if (transform.isTranslateTransform) {
+              const translation = transform.getTranslation();
+              if (translation) {
+                console.log("translating");
+
+                model.position.set(translation.x, translation.y, translation.z);
+
+                let newModel = new THREE.Group();
+                newModel.attach(model);
+                model = newModel;
+              }
+            } else if (transform.isRotateTransform) {
+              // hi
+            } else if (transform.isScaleTransform) {
+              const scale = transform.getScale();
+              if (scale) {
+                console.log("scaling");
+                // figure out how to combine scaling with translation
+                model.scale.set(scale.x, scale.y, scale.z);
+
+                let newModel = new THREE.Group();
+                newModel.attach(model);
+                model = newModel;
+              }
+            }
+          }
+        });
+      }
+
+      // Position model within target scene if position selector present
+      if (typeof modelTarget !== "string") {
+        const selector = modelTarget.getSelector();
+        if (selector && selector.isPointSelector) {
+          const position = selector.getLocation();
+          model.position.set(position.x, position.y, position.z);
+        }
+      }
+
+      scene.add(model);
     });
+  }
+}
+
+function processTransform(model, transform) {
+  if (model && transform) {
+    model = doTransform(model, transform);
+    const newModel = new THREE.Group();
+    newModel.attach(model);
+    return newModel;
+  }
+}
+
+function doTransform(model, transform) {
+  if (transform.isTranslateTransform) {
+    const translation = transform.getTranslation();
+    if (translation) {
+      console.log("translating");
+      model.position.set(translation.x, translation.y, translation.z);
+    }
+  } else if (transform.isRotateTransform) {
+    return rotate;
+  } else if (transform.isScaleTransform) {
+    const scale = transform.getScale();
+    if (scale) {
+      console.log("scaling");
+      model.scale.set(scale.x, scale.y, scale.z);
+    }
   }
 }
 

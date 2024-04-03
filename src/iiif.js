@@ -1,4 +1,5 @@
 const manifesto = require("manifesto.js/dist-commonjs/");
+import * as manifest from "manifesto.js/dist-esmodule";
 
 export class IIIFManifest {
   constructor(manifest) {

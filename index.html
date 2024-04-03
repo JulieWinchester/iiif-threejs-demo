@@ -19,9 +19,18 @@
             Single Model with background color
           </option>
         </optgroup>
+        <optgroup label="4. Transform and Position">
+          <option value="https://raw.githubusercontent.com/IIIF/3d/main/manifests/4_transform_and_position/model_position.json">
+            Single Positioned Model
+          </option>
+          <option value="https://raw.githubusercontent.com/IIIF/3d/main/manifests/4_transform_and_position/model_transform_scale_position.json">
+            Scaled, Translated Model with original for comparison
+          </option>
+        </optgroup>
+        
       </select>
       <div class="form-group">
-        <input type="text" id="manifest-url" name="manifest-url" value="https://raw.githubusercontent.com/IIIF/3d/main/manifests/1_basic_model_in_scene/model_origin.json"></input>
+        <input type="text" id="manifest-url" name="manifest-url" value=""></input>
         <button id="load-manifest-from-url">Load Manifest From URL</button>
       </div>
       <textarea id="manifest-text" name="manifest-text" rows="10"></textarea>
